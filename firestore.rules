@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "mrbadshaff@gmail.com" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Project Validation
+    function isValidProject(data) {
+      return data.keys().hasAll(['title', 'category', 'description', 'image', 'tags', 'color', 'createdAt', 'updatedAt']) &&
+             data.keys().size() == 8 &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.description is string && data.description.size() <= 2000 &&
+             data.image is string && data.image.size() <= 1000 &&
+             data.tags is list && data.tags.size() <= 10 &&
+             data.color is string && data.color.size() <= 20 &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    // Projects Collection
+    match /projects/{projectId} {
+      allow read: if true; // Publicly readable
+      
+      allow create: if isAdmin() && 
+                      isValidId(projectId) && 
+                      isValidProject(incoming()) && 
+                      incoming().createdAt == request.time &&
+                      incoming().updatedAt == request.time;
+      
+      allow update: if isAdmin() && 
+                      isValidProject(incoming()) && 
+                      incoming().createdAt == existing().createdAt &&
+                      incoming().updatedAt == request.time;
+
+      allow delete: if isAdmin();
+    }
+
+    // Admins Collection (Managed by super-admin email)
+    match /admins/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isSignedIn() && request.auth.token.email == "mrbadshaff@gmail.com";
+    }
+  }
+}

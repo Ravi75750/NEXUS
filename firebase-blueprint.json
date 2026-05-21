@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Agency Project",
+      "description": "A case study or portfolio item for the agency.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Name of the project" },
+        "category": { "type": "string", "description": "e.g., Web Engineering, Android App" },
+        "description": { "type": "string", "description": "Detailed summary" },
+        "image": { "type": "string", "description": "URL to the project cover image" },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Tech stack tags" },
+        "color": { "type": "string", "description": "Primary theme color/hex" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "description", "image", "tags", "createdAt", "updatedAt"]
+    },
+    "Admin": {
+      "title": "System Admin",
+      "description": "User with management privileges.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Public portfolio projects."
+    },
+    "/admins/{uid}": {
+      "schema": "Admin",
+      "description": "Registry of authorized admins."
+    }
+  }
+}
