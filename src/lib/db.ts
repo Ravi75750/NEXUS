@@ -107,7 +107,7 @@ export async function getUsers(): Promise<User[]> {
   return fetchAPI('/admin/users');
 }
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 async function fetchAPI(endpoint: string, options?: RequestInit) {
   const token = localStorage.getItem('nexus_token');
