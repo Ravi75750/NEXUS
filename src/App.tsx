@@ -8,7 +8,6 @@ import ContactForm from './components/ContactForm';
 import AIStrategyBot from './components/AIStrategyBot';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
-import ProjectTracker from './components/ProjectTracker';
 import GlobalBackground from './components/GlobalBackground';
 import ReviewSystem from './components/ReviewSystem';
 import TeamSection from './components/TeamSection';
@@ -87,11 +86,6 @@ export default function App() {
             <div className="bg-nexus-dark min-h-screen">
               <AdminPanel />
             </div>
-          } />
-          <Route path="/track" element={
-            <MainLayout>
-              <ProjectTracker />
-            </MainLayout>
           } />
         </Routes>
       </div>

@@ -78,7 +78,17 @@ export default function Navbar() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
-         
+          <div className="relative">
+            <img 
+              src="/logo.png" 
+              alt="Nexus Logo" 
+              className="w-12 h-12 object-contain group-hover:scale-110 transition-transform duration-500"
+              onError={(e) => {
+                (e.target as any).style.display = 'none';
+              }}
+            />
+            <div className="absolute inset-0 bg-nexus-cyan/10 blur-xl rounded-full -z-10" />
+          </div>
           <div className="flex flex-col">
             <span className="font-display text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-nexus-cyan to-nexus-teal">
               NEXUS

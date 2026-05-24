@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Send, CheckCircle2, MessageSquare, Loader2 } from 'lucide-react';
 import { createContactInquiry } from '../lib/db';
 import toast from 'react-hot-toast';
-import Loader from './Loader';
 
 export default function ContactForm() {
   const [formState, setFormState] = useState({ name: '', email: '', phone: '', message: '' });
@@ -110,15 +109,10 @@ export default function ContactForm() {
               <button 
                 disabled={isSubmitting}
                 type="submit" 
-                className="w-full btn-primary py-5 rounded-2xl flex items-center justify-center gap-4 group disabled:opacity-50 overflow-hidden relative"
+                className="w-full btn-primary py-5 rounded-2xl flex items-center justify-center gap-4 group disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono tracking-widest uppercase">Transmitting</span>
-                    <div className="scale-50">
-                      <Loader />
-                    </div>
-                  </div>
+                  <>TRANSMITTING... <Loader2 className="w-5 h-5 animate-spin" /></>
                 ) : (
                   <>INITIALIZE SYNC <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /></>
                 )}

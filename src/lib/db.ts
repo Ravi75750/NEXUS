@@ -75,39 +75,12 @@ export interface Order {
   phone: string;
   projectName: string;
   value: number;
-  paidAmount: number;
-  status: 'pending' | 'active' | 'completed' | 'on-hold';
-  stage: 'Initiated' | '30% Advance' | '40% Mid-Project' | '30% Final';
-  progress: number;
-  trackingKey?: string;
+  status: 'active' | 'completed' | 'on-hold';
   startDate: string;
   deadline?: string;
 }
 
-export async function getProjectByTrackKey(key: string): Promise<any> {
-  return fetchAPI(`/track/${key}`);
-}
-
-// Admin Email Templates
-export async function sendAdminTemplate(data: {
-  type: 'welcome' | 'contract' | 'payment';
-  email: string;
-  name: string;
-  projectName?: string;
-  amount?: number;
-  stage?: string;
-}) {
-  return fetchAPI('/admin/send-template', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
-
-export async function getUsers(): Promise<User[]> {
-  return fetchAPI('/admin/users');
-}
-
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = '/api';
 
 async function fetchAPI(endpoint: string, options?: RequestInit) {
   const token = localStorage.getItem('nexus_token');

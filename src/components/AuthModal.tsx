@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, User, ShieldCheck, ArrowRight, Loader2, Activity } from 'lucide-react';
+import { X, Mail, Lock, User, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { register, verifyOTP, login } from '../lib/db';
 import toast from 'react-hot-toast';
-
-import Loader from './Loader';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,7 +18,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     otp: ''
   });
@@ -31,7 +28,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     try {
       if (mode === 'register') {
-        await register({ email: formData.email, password: formData.password, name: formData.name, phone: formData.phone });
+        await register({ email: formData.email, password: formData.password, name: formData.name });
         toast.success('OTP sent to your email!');
         setMode('otp');
       } else if (mode === 'otp') {
@@ -112,22 +109,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             </div>
           )}
 
-          {mode === 'register' && (
-            <div className="space-y-2">
-              <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold flex items-center gap-2">
-                <Activity className="w-3 h-3" /> Mobile Number
-              </label>
-              <input
-                required
-                type="tel"
-                value={formData.phone}
-                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-nexus-cyan transition-colors text-white"
-                placeholder="+91 00000 00000"
-              />
-            </div>
-          )}
-
           {mode !== 'otp' && (
             <>
               <div className="space-y-2">
@@ -182,9 +163,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 group disabled:opacity-50"
           >
             {isLoading ? (
-              <div className="scale-50 origin-center flex items-center h-full">
-                <Loader />
-              </div>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 {mode === 'login' ? 'Enter Terminal' : mode === 'register' ? 'Initialize Profile' : 'Verify & Enter'}

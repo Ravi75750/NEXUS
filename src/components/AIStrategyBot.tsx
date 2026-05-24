@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles, Zap } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { getAIStrategyResponse } from '../services/geminiService';
-import Loader from './Loader';
 
 export default function AIStrategyBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'model' | 'user', text: string }[]>([
-    { role: 'model', text: 'Greetings. I am **NOVA**, your Nexus strategic intelligence node. How can I facilitate your digital evolution today?' }
+    { role: 'model', text: 'Initiating Nexus AI Strategy Node. How can I facilitate your digital transformation today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -16,8 +15,12 @@ export default function AIStrategyBot() {
 
   const predefinedQuestions = [
     { 
+      q: "Contact us on WhatsApp", 
+      a: "You can initiate a secure communication line directly via [WhatsApp](https://wa.me/917575088632?text=Hi%20Nexus%20Team,%20I%20am%20interested%20in%20a%20digital%20transformation.)." 
+    },
+    { 
       q: "What services does Nexus provide?", 
-      a: "Nexus Digital Solutions provides high-end digital services including **Full-Stack Web Development (MERN)**, **SEO Strategy**, **Video Editing**, and **Professional Logo Design/Branding**." 
+      a: "Nexus Digital Solutions provides high-end digital services including **Full-Stack Web Development (MERN)**, **Android App Building**, **SEO Strategy**, **Video Editing**, and **Professional Logo Design/Branding**." 
     },
     { 
       q: "How can I start a project with you?", 
@@ -78,56 +81,16 @@ export default function AIStrategyBot() {
 
   return (
     <>
-      <motion.button
+      <button
         onClick={() => setIsOpen(true)}
-        initial={{ scale: 0, rotate: -45 }}
-        animate={{ scale: 1, rotate: 0 }}
-        whileHover={{ scale: 1.1, rotate: 5 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-nexus-cyan rounded-2xl shadow-[0_0_30px_rgba(0,170,255,0.4)] flex items-center justify-center text-nexus-dark z-40 group overflow-hidden"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-nexus-cyan rounded-2xl shadow-[0_0_30px_rgba(0,170,255,0.4)] flex items-center justify-center text-nexus-dark z-40 hover:scale-110 transition-all duration-300 active:scale-95 group overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <div className="relative flex items-center justify-center">
-          <motion.div
-             animate={{ 
-               scale: [1, 1.4, 1],
-               opacity: [0.1, 0.3, 0.1],
-             }}
-             transition={{ duration: 3, repeat: Infinity }}
-             className="absolute w-16 h-16 bg-nexus-cyan/40 rounded-full blur-xl"
-          />
-          <motion.div
-             animate={{ 
-               scale: [1, 1.3, 1],
-               opacity: [0.2, 0.5, 0.2],
-               rotate: [0, 180, 360]
-             }}
-             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-             className="absolute w-12 h-12 border-2 border-dashed border-nexus-cyan/40 rounded-full"
-          />
-          <motion.div
-             animate={{ 
-               scale: [1, 1.1, 1],
-               opacity: [0.3, 0.6, 0.3],
-               rotate: [360, 180, 0]
-             }}
-             transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-             className="absolute w-10 h-10 border border-nexus-cyan/30 rounded-full"
-          />
-          <motion.div
-             animate={{ 
-               y: [0, -4, 0],
-             }}
-             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-             className="relative z-10 filter drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]"
-          >
-            <Bot className="w-8 h-8" />
-          </motion.div>
+        <div className="relative">
+          <Bot className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-nexus-cyan animate-pulse" />
         </div>
-        <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-nexus-dark">
-          <div className="w-full h-full bg-green-400 rounded-full animate-ping opacity-75" />
-        </div>
-      </motion.button>
+      </button>
 
       <AnimatePresence>
         {isOpen && (
@@ -150,18 +113,13 @@ export default function AIStrategyBot() {
               <div className="p-6 border-b border-white/10 bg-nexus-charcoal relative">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-nexus-cyan/10 flex items-center justify-center relative group">
-                      <div className="absolute inset-0 bg-nexus-cyan/20 rounded-2xl blur-md animate-pulse" />
-                      <Bot className="w-6 h-6 text-nexus-cyan relative z-10" />
-                      <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-nexus-yellow animate-bounce" />
-                      <span className="absolute -bottom-1 -left-1 w-3 h-3 bg-green-500 rounded-full border-2 border-nexus-charcoal shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                    <div className="w-12 h-12 rounded-2xl bg-nexus-cyan/10 flex items-center justify-center relative">
+                      <Bot className="w-6 h-6 text-nexus-cyan" />
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-nexus-charcoal animate-pulse" />
                     </div>
                     <div>
-                      <h3 className="font-display font-bold text-lg text-white group flex items-center gap-2">
-                        NOVA AI
-                        <div className="px-1.5 py-0.5 rounded text-[8px] bg-nexus-cyan/20 text-nexus-cyan border border-nexus-cyan/30 tracking-tighter uppercase font-black">Core</div>
-                      </h3>
-                      <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-medium">Strategic Analytics Unit</p>
+                      <h3 className="font-display font-bold text-lg text-white">Nexus Intelligence</h3>
+                      <p className="text-[10px] text-nexus-cyan uppercase tracking-widest font-bold">Strategy Node Active</p>
                     </div>
                   </div>
                   <button 
@@ -180,15 +138,15 @@ export default function AIStrategyBot() {
               >
                 {messages.map((msg, i) => (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     key={i}
                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`max-w-[85%] px-5 py-4 rounded-3xl text-sm leading-relaxed shadow-sm transition-all ${
+                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
                       msg.role === 'user' 
-                        ? 'bg-nexus-cyan text-nexus-dark font-semibold rounded-tr-none border-b-2 border-r-2 border-black/10' 
-                        : 'bg-white/[0.03] border border-white/10 rounded-tl-none backdrop-blur-md prose prose-invert prose-sm'
+                        ? 'bg-nexus-cyan text-nexus-dark font-medium rounded-tr-none shadow-[0_4px_15px_rgba(0,170,255,0.2)]' 
+                        : 'bg-white/5 border border-white/10 rounded-tl-none prose prose-invert prose-sm'
                     }`}>
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
@@ -196,24 +154,23 @@ export default function AIStrategyBot() {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-3">
-                      <div className="scale-50 origin-left">
-                        <Loader />
-                      </div>
-                      <span className="text-[10px] font-mono text-nexus-cyan/40 uppercase tracking-widest animate-pulse">Processing...</span>
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-2xl rounded-tl-none flex gap-2">
+                      <span className="w-2 h-2 bg-nexus-cyan rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-2 h-2 bg-nexus-cyan rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-2 h-2 bg-nexus-cyan rounded-full animate-bounce" />
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Predefined Questions */}
-              <div className="px-6 py-4 border-t border-white/5 flex flex-nowrap overflow-x-auto gap-2 bg-black/20 no-scrollbar">
+              <div className="px-6 py-3 border-t border-white/5 flex flex-wrap gap-2 bg-nexus-charcoal/50">
                 {predefinedQuestions.map((pq, i) => (
                   <button
                     key={i}
                     onClick={() => handleSend(pq.q)}
                     disabled={isLoading}
-                    className="text-[9px] font-bold uppercase tracking-widest bg-white/[0.02] hover:bg-nexus-cyan hover:text-nexus-dark px-4 py-2.5 rounded-full border border-white/5 transition-all whitespace-nowrap shadow-sm active:scale-95"
+                    className="text-[10px] font-bold uppercase tracking-wider bg-white/5 hover:bg-nexus-cyan/10 hover:text-nexus-cyan px-3 py-2 rounded-xl border border-white/10 transition-all whitespace-nowrap"
                   >
                     {pq.q.replace("Nexus ", "")}
                   </button>
@@ -221,23 +178,21 @@ export default function AIStrategyBot() {
               </div>
 
               {/* Input */}
-              <div className="p-6 bg-nexus-charcoal border-t border-white/10 relative">
-                <div className="absolute -top-4 left-0 w-full h-4 bg-gradient-to-t from-nexus-charcoal to-transparent pointer-events-none" />
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-nexus-cyan/5 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <div className="p-6 bg-nexus-charcoal border-t border-white/10">
+                <div className="relative">
                   <input
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyPress={e => e.key === 'Enter' && handleSend()}
-                    placeholder="Inquire Nova core..."
-                    className="relative w-full bg-white/5 border border-white/10 rounded-2xl pl-6 pr-14 py-4 focus:outline-none focus:border-nexus-cyan focus:bg-white/[0.08] text-sm transition-all text-white placeholder:text-white/20"
+                    placeholder="Consult the strategy node..."
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-5 pr-14 py-4 focus:outline-none focus:border-nexus-cyan text-sm transition-colors text-white"
                   />
                   <button
                     onClick={() => handleSend()}
                     disabled={isLoading || !input.trim()}
-                    className="absolute right-2 top-2 p-2.5 text-nexus-cyan hover:bg-nexus-cyan hover:text-nexus-dark rounded-xl transition-all disabled:opacity-30 disabled:hover:bg-transparent"
+                    className="absolute right-2 top-2 p-2.5 text-nexus-cyan hover:bg-nexus-cyan/10 rounded-xl transition-colors disabled:opacity-50"
                   >
-                    <Send className="w-5 h-5 shadow-inner" />
+                    <Send className="w-5 h-5" />
                   </button>
                 </div>
               </div>

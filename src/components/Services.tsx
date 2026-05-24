@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Globe, 
+  Smartphone, 
   MonitorPlay, 
   Palette, 
   Search, 
+  BarChart3, 
   Database,
   X, 
   CheckCircle2, 
@@ -30,6 +32,23 @@ const services = [
       { label: 'Enterprise Stack + Custom CMS', price: '₹25,000' }
     ],
     features: ['SEO Optimized', 'Mobile Responsive', 'Cloud Infrastructure', 'SSL Certified']
+  },
+  {
+    id: 'app',
+    title: 'Android Development',
+    description: 'Premium native and cross-platform mobile experiences with flawless performance.',
+    detailedInfo: 'We build native Android applications that leverage the full power of hardware. From biometric authentication to seamless background processing, our apps are engineered for the futuristic mobile landscape.',
+    icon: Smartphone,
+    color: 'nexus-teal',
+    imageUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800',
+    category: 'Engineering',
+    tags: ['Kotlin', 'Flutter', 'Firebase', 'Native'],
+    pricing: [
+      { label: 'UI Mockup + 5 Screens', price: '₹19,999' },
+      { label: 'Full App + API Integration', price: '₹29,999' },
+      { label: 'Complex Ecosystem (Multi-role)', price: '₹45,999' }
+    ],
+    features: ['High Performance', 'Biometric Support', 'Push Notifications', 'Offline Storage']
   },
   {
     id: 'video',
@@ -81,22 +100,28 @@ const services = [
       { label: 'Global Ranking Domination', price: '₹19,999' }
     ],
     features: ['Keyword Analysis', 'Backlink Engine', 'Speed Optimization', 'Competitor Sync']
+  },
+  {
+    id: 'market',
+    title: 'Market Analysis',
+    description: 'Data-driven strategic insights to pinpoint your competitive edge and maximize ROI.',
+    detailedInfo: 'We analyze the digital grid to find market gaps and opportunities for your startup to exploit, backed by real-time data visualization.',
+    icon: BarChart3,
+    color: 'nexus-yellow',
+    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+    category: 'Growth',
+    tags: ['Data', 'Stratgey', 'ROI'],
+    pricing: [
+      { label: 'Single Market Audit', price: '₹3,999' },
+      { label: 'Quarterly Strategic Roadmap', price: '₹8,999' },
+      { label: 'Full Competitor Penetration Plan', price: '₹15,999' }
+    ],
+    features: ['SWOT Sync', 'Trend Forecasting', 'Consumer Intel', 'Risk Analysis']
   }
 ];
 
 export default function Services() {
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
-
-  useEffect(() => {
-    if (selectedService) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedService]);
 
   return (
     <section id="services" className="py-24 relative overflow-hidden">
@@ -107,7 +132,7 @@ export default function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Our <span className="neon-text">Services</span>
+            Service <span className="neon-text">Nodes</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -120,83 +145,85 @@ export default function Services() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, i) => {
-            const isCyan = service.color === 'nexus-cyan';
-            const isYellow = service.color === 'nexus-yellow';
-            const accentClass = isCyan ? 'text-nexus-cyan border-nexus-cyan/20 bg-nexus-cyan/5' : isYellow ? 'text-nexus-yellow border-nexus-yellow/20 bg-nexus-yellow/5' : 'text-nexus-teal border-nexus-teal/20 bg-nexus-teal/5';
-            const glowClass = isCyan ? 'shadow-[0_0_20px_rgba(0,255,255,0.1)]' : isYellow ? 'shadow-[0_0_20px_rgba(255,215,0,0.1)]' : 'shadow-[0_0_20px_rgba(20,240,200,0.1)]';
-
-            return (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.6 }}
-                whileHover={{ y: -10 }}
-                onClick={() => setSelectedService(service)}
-                className="group relative h-full cursor-pointer"
-              >
-                {/* Modern Glass Background */}
-                <div className={`relative h-full glass border border-white/10 rounded-3xl p-8 transition-all duration-500 group-hover:border-white/30 group-hover:bg-white/[0.05] overflow-hidden ${glowClass}`}>
-                  
-                  {/* Subtle Image Backdrop */}
-                  <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-10 transition-opacity duration-1000">
-                    <img 
-                      src={service.imageUrl} 
-                      alt="" 
-                      className="w-full h-full object-cover scale-150"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-
-                  {/* Header: Icon & Tier */}
-                  <div className="flex justify-between items-start mb-10 relative z-10">
-                    <div className={`p-4 rounded-2xl bg-white/5 border border-white/10 group-hover:border-nexus-cyan/50 transition-colors duration-500`}>
-                      <service.icon className="w-8 h-8 text-white group-hover:text-nexus-cyan transition-colors" />
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em] block mb-1">Service_Node</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-widest ${isCyan ? 'text-nexus-cyan' : isYellow ? 'text-nexus-yellow' : 'text-nexus-teal'}`}>0{i + 1}</span>
-                    </div>
-                  </div>
-
-                  {/* Body: Title & Descr */}
-                  <div className="relative z-10">
-                    <h3 className="text-2xl font-bold text-white mb-4 tracking-tight group-hover:text-nexus-cyan transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-white/60 text-sm leading-relaxed mb-10 line-clamp-3">
-                      {service.description}
-                    </p>
-                  </div>
-
-                  {/* Tech Tags */}
-                  <div className="flex flex-wrap gap-2 mb-10 relative z-10">
-                    {service.tags.map(tag => (
-                      <span key={tag} className="text-[9px] px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-white/40 font-medium">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Footer Action */}
-                  <div className="mt-auto border-t border-white/5 pt-6 flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full bg-nexus-cyan animate-pulse`} />
-                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Pricing starts {service.pricing[0].price}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-nexus-cyan text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span>Explore</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  {/* Shimmer Effect */}
-                  <div className="absolute inset-0 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-[1.5s] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+          {services.map((service, i) => (
+            <motion.div
+              key={service.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              whileHover={{ y: -10 }}
+              onClick={() => setSelectedService(service)}
+              className="relative group cursor-pointer"
+            >
+              {/* Card Glow Background */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-nexus-cyan/20 to-nexus-teal/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
+              
+              <div className="relative glass h-full p-8 rounded-3xl border-white/5 group-hover:border-nexus-cyan/50 flex flex-col transition-all duration-500 overflow-hidden">
+                {/* Subtle Domain Background Image */}
+                <div className="absolute inset-0 z-0 overflow-hidden">
+                  <img 
+                    src={service.imageUrl} 
+                    alt={service.title} 
+                    className="w-full h-full object-cover opacity-[0.15] group-hover:opacity-25 group-hover:scale-110 transition-all duration-1000"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-nexus-charcoal opacity-90 group-hover:opacity-75 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-nexus-charcoal via-transparent to-transparent opacity-100" />
                 </div>
-              </motion.div>
-            );
-          })}
+
+                {/* Decorative Technical Accents */}
+                <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none z-10">
+                  <div className="absolute top-4 right-4 w-4 h-[2px] bg-nexus-cyan/30 group-hover:bg-nexus-cyan transition-colors" />
+                  <div className="absolute top-4 right-4 w-[2px] h-4 bg-nexus-cyan/30 group-hover:bg-nexus-cyan transition-colors" />
+                </div>
+                <div className="absolute bottom-0 left-0 w-16 h-16 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute bottom-4 left-4 w-4 h-[2px] bg-nexus-yellow" />
+                  <div className="absolute bottom-4 left-4 w-[2px] h-4 bg-nexus-yellow" />
+                </div>
+
+                {/* Light Sweep Animation */}
+                <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none z-10" />
+
+                <div className="mb-8 relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center relative group-hover:border-nexus-cyan/50 transition-colors duration-500">
+                    <service.icon className="w-8 h-8 text-white group-hover:text-nexus-cyan group-hover:scale-110 transition-all duration-500" />
+                    {/* Icon Aura */}
+                    <div className="absolute inset-0 bg-nexus-cyan/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 text-[10px] font-mono text-white/20 group-hover:text-nexus-cyan transition-colors">
+                    0{i + 1}
+                  </div>
+                </div>
+
+                <div className="mb-4 relative z-10">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold group-hover:text-nexus-yellow transition-colors mb-2 block">
+                    {service.category}_PROTOCOL
+                  </span>
+                  <h3 className="text-2xl font-display font-bold group-hover:text-white transition-colors">
+                    {service.title}
+                  </h3>
+                </div>
+
+                <p className="text-white/90 text-sm leading-relaxed mb-8 flex-grow relative z-10 drop-shadow-sm font-medium">
+                  {service.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-8 relative z-10">
+                  {service.tags.slice(0, 3).map(tag => (
+                    <span key={tag} className="text-[9px] px-2 py-1 rounded-md bg-white/5 border border-white/10 text-white/30 font-mono">
+                      #{tag.toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3 text-nexus-cyan text-sm font-bold group-hover:gap-5 transition-all relative z-10">
+                  <div className="h-px flex-grow bg-gradient-to-r from-nexus-cyan/50 to-transparent" />
+                  <span className="whitespace-nowrap uppercase tracking-widest text-[11px]">Initiate Node</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -213,7 +240,7 @@ export default function Services() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="glass max-w-3xl w-full rounded-3xl overflow-y-auto scrollbar-hide max-h-[90vh] border-nexus-cyan/30 shadow-[0_0_50px_rgba(0,170,255,0.1)] relative"
+              className="glass max-w-3xl w-full rounded-3xl overflow-hidden border-nexus-cyan/30 shadow-[0_0_50px_rgba(0,170,255,0.1)] relative"
             >
               <button 
                 onClick={() => setSelectedService(null)}
@@ -228,29 +255,29 @@ export default function Services() {
                   <div className="w-20 h-20 rounded-2xl bg-nexus-cyan flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,170,255,0.3)]">
                     <selectedService.icon className="w-10 h-10 text-nexus-dark" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-1">{selectedService.title}</h3>
-                  <span className="text-xs uppercase tracking-widest font-semibold text-nexus-cyan mb-6">Service Analysis</span>
+                  <h3 className="text-2xl font-bold mb-2">{selectedService.title}</h3>
+                  <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-nexus-cyan mb-6">PROTOCOL_ANALYSIS</span>
                   
                   <div className="space-y-4 w-full">
                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left">
                       <Zap className="w-4 h-4 text-nexus-yellow" />
                       <div>
-                        <p className="text-[10px] text-white/40 uppercase font-semibold">Performance</p>
-                        <p className="text-xs font-bold text-white/90">Ultra-High Speed</p>
+                        <p className="text-[10px] text-white/30 uppercase">Latency</p>
+                        <p className="text-xs font-bold font-mono text-white/80">ULTRA_LOW</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left">
                       <Shield className="w-4 h-4 text-nexus-cyan" />
                       <div>
-                        <p className="text-[10px] text-white/40 uppercase font-semibold">Security</p>
-                        <p className="text-xs font-bold text-white/90">Enterprise Grade</p>
+                        <p className="text-[10px] text-white/30 uppercase">Security</p>
+                        <p className="text-xs font-bold font-mono text-white/80">QUANTUM_READY</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Content Side */}
-                <div className="md:col-span-12 lg:col-span-7 p-8">
+                <div className="md:col-span-12 lg:col-span-7 p-8 max-h-[70vh] overflow-y-auto">
                   <div className="space-y-8">
                     <section>
                       <h4 className="text-nexus-cyan text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -282,8 +309,8 @@ export default function Services() {
                       <div className="space-y-3">
                         {selectedService.pricing.map((tier) => (
                           <div key={tier.label} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
-                            <span className="text-xs text-white/70">{tier.label}</span>
-                            <span className="text-sm font-bold text-nexus-cyan">{tier.price}</span>
+                            <span className="text-xs text-white/60">{tier.label}</span>
+                            <span className="text-sm font-bold font-mono text-nexus-cyan">{tier.price}</span>
                           </div>
                         ))}
                       </div>

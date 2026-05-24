@@ -51,17 +51,6 @@
   .btn-secondary {
     @apply px-6 py-3 border border-nexus-cyan text-nexus-cyan font-semibold rounded-lg hover:bg-nexus-cyan/10 transition-all duration-300;
   }
-
-  .animate-scan {
-    animation: scan 3s linear infinite;
-  }
-}
-
-@keyframes scan {
-  0% { top: 0; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
 }
 
 /* Atomic Grid Background Animation */

@@ -24,12 +24,7 @@ import {
   ExternalLink,
   Users,
   Star,
-  Database,
-  Zap,
-  Mail,
-  Smartphone,
-  Calendar,
-  IndianRupee
+  Database
 } from 'lucide-react';
 import { auth, loginWithEmail, logout } from '../lib/firebase';
 import { 
@@ -51,18 +46,14 @@ import {
   createOrder,
   updateOrder,
   uploadImage,
-  getUsers,
-  sendAdminTemplate,
   Review,
   TeamMember,
   Order 
 } from '../lib/db';
-import toast from 'react-hot-toast';
 import { cn } from '../lib/utils';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import Loader from './Loader';
 
-type TabType = 'overview' | 'projects' | 'messages' | 'reviews' | 'team' | 'orders' | 'users' | 'settings';
+type TabType = 'overview' | 'projects' | 'messages' | 'reviews' | 'team' | 'orders' | 'settings';
 
 export default function AdminPanel() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -72,58 +63,12 @@ export default function AdminPanel() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [appUsers, setAppUsers] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-
-  const generateTrackingKey = () => {
-    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let result = '';
-    for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [dbStatus, setDbStatus] = useState<'connected' | 'error' | 'connecting'>('connecting');
-  
-  const [operatorData, setOperatorData] = useState({ email: '', accessKey: '' });
-  const [visualPrefs, setVisualPrefs] = useState({
-    darkMode: true,
-    hardwareAccel: true,
-    neonOverpulse: false
-  });
-
-  const handlePromoteOperator = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!operatorData.email || !operatorData.accessKey) {
-      toast.error('Missing authorization credentials');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const res = await fetch('/api/admin/promote-operator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(operatorData)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      
-      toast.success(data.message);
-      setOperatorData({ email: '', accessKey: '' });
-      loadData();
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const [searchQuery, setSearchQuery] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -190,20 +135,18 @@ export default function AdminPanel() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [projData, contactData, reviewData, teamData, orderData, userData] = await Promise.all([
+      const [projData, contactData, reviewData, teamData, orderData] = await Promise.all([
         getProjects(),
         getContactInquiries(),
         getReviews(),
         getTeam(),
-        getOrders(),
-        getUsers()
+        getOrders()
       ]);
       setProjects(projData);
       setContactInquiries(contactData);
       setReviews(reviewData);
       setTeam(teamData);
       setOrders(orderData);
-      setAppUsers(userData);
       checkDbStatus();
     } finally {
       setIsLoading(false);
@@ -348,26 +291,6 @@ export default function AdminPanel() {
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSendTemplate = async (userId: string, type: 'welcome' | 'contract' | 'payment', additionalData: any = {}) => {
-    const userOrOrder = appUsers.find(u => u._id === userId) || orders.find(o => o.id === userId);
-    if (!userOrOrder) return;
-
-    try {
-      setIsLoading(true);
-      await sendAdminTemplate({
-        type,
-        email: userOrOrder.email,
-        name: userOrOrder.name || userOrOrder.clientName,
-        ...additionalData
-      });
-      toast.success(`${type.toUpperCase()} email sent successfully!`);
-    } catch (err: any) {
-      toast.error('Failed to send email: ' + err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -443,18 +366,10 @@ export default function AdminPanel() {
           <button 
             type="submit"
             disabled={isLoading}
-            className="w-full btn-primary py-4 flex items-center justify-center gap-3 disabled:opacity-50 group mt-4 overflow-hidden relative min-h-[60px]"
+            className="w-full btn-primary py-4 flex items-center justify-center gap-3 disabled:opacity-50 group mt-4 overflow-hidden relative"
           >
-            {isLoading ? (
-               <div className="scale-50 origin-center flex items-center h-full">
-                 <Loader />
-               </div>
-            ) : (
-              <>
-                <span className="relative z-10">Establish Connection</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-nexus-cyan to-nexus-teal opacity-0 group-hover:opacity-100 transition-opacity" />
-              </>
-            )}
+            <span className="relative z-10">{isLoading ? 'Bypassing...' : 'Establish Connection'}</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-nexus-cyan to-nexus-teal opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         </form>
         
@@ -480,14 +395,6 @@ export default function AdminPanel() {
       </button>
     </div>
   );
-
-  if (isLoading && isAdmin) {
-    return (
-      <div className="min-h-screen bg-nexus-dark flex items-center justify-center">
-        <Loader fullPage />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-nexus-dark text-white flex flex-col lg:flex-row">
@@ -532,9 +439,9 @@ export default function AdminPanel() {
                 { id: 'overview', icon: LayoutDashboard, label: 'Tactical Overview' },
                 { id: 'projects', icon: Database, label: 'Asset Management' },
                 { id: 'orders', icon: TrendingUp, label: 'Active Orders' },
-                { id: 'users', icon: Users, label: 'User Directory' },
-                { id: 'team', icon: Briefcase, label: 'Core Operatives' },
-                { id: 'messages', icon: Clock, label: 'Appointments' },
+                { id: 'team', icon: Users, label: 'Core Operatives' },
+                { id: 'reviews', icon: MessageSquare, label: 'Testimonials' },
+                { id: 'messages', icon: Clock, label: 'Sync Requests' },
                 { id: 'settings', icon: Settings, label: 'Terminal Control' },
               ].map((tab) => (
                 <button
@@ -800,10 +707,7 @@ export default function AdminPanel() {
                       phone: client.phone || '',
                       projectName: 'New Project',
                       value: 50000,
-                      paidAmount: 0,
                       status: 'active',
-                      stage: 'Initiated',
-                      progress: 0,
                       startDate: new Date().toISOString()
                     }).then(loadData);
                   }}
@@ -815,187 +719,32 @@ export default function AdminPanel() {
 
               <div className="grid grid-cols-1 gap-4">
                 {orders.map(order => (
-                  <div key={order.id} className="glass p-6 rounded-3xl border-white/5 space-y-4">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                      <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 rounded-2xl bg-nexus-yellow/10 flex items-center justify-center border border-nexus-yellow/20">
-                          <Activity className="w-6 h-6 text-nexus-yellow" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-lg">{order.projectName}</h4>
-                          <p className="text-xs text-white/40">{order.clientName} // {order.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-8 items-center">
-                        <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Contract_Value</p>
-                          <p className="font-mono font-bold text-nexus-cyan">₹{order.value.toLocaleString('en-IN')}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Paid</p>
-                          <p className="font-mono font-bold text-nexus-teal">₹{order.paidAmount.toLocaleString('en-IN')}</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Stage</p>
-                          <span className="px-3 py-1 rounded-full bg-nexus-cyan/10 text-nexus-cyan text-[10px] font-bold uppercase tracking-widest border border-nexus-cyan/20">
-                            {order.stage}
-                          </span>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Tracking_Key</p>
-                          <div className="flex items-center gap-2">
-                             <span className="font-mono text-xs text-white/60">{order.trackingKey || "NONE"}</span>
-                             {!order.trackingKey && (
-                               <button 
-                                 onClick={() => order.id && updateOrder(order.id, { trackingKey: generateTrackingKey() }).then(loadData)}
-                                 className="p-1 hover:text-nexus-cyan transition-colors"
-                                 title="Generate Key"
-                               >
-                                 <Plus className="w-3 h-3" />
-                               </button>
-                             )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            className="p-2 glass rounded-lg text-white/40 hover:text-white transition-colors"
-                            onClick={() => {
-                              const newVal = prompt("Update Paid Amount:", order.paidAmount.toString());
-                              if (newVal && order.id) updateOrder(order.id, { paidAmount: Number(newVal) }).then(loadData);
-                            }}
-                          >
-                            <TrendingUp className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Progress Control */}
-                    <div className="py-4 border-y border-white/5 space-y-3">
-                      <div className="flex justify-between items-center text-[10px] uppercase font-mono text-white/40">
-                        <span>Project_Progress Protocol</span>
-                        <span className="text-nexus-cyan">{order.progress}%</span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min="0" max="100" 
-                        value={order.progress} 
-                        onChange={(e) => order.id && updateOrder(order.id, { progress: Number(e.target.value) }).then(loadData)}
-                        className="w-full h-1 bg-white/5 rounded-full appearance-none cursor-pointer accent-nexus-cyan"
-                      />
-                    </div>
-                    
-                    <div className="pt-4 flex flex-wrap gap-3">
-                      <button 
-                        onClick={() => order.id && handleSendTemplate(order.id, 'contract', { projectName: order.projectName })}
-                        className="flex items-center gap-2 px-4 py-2 bg-nexus-purple/10 text-nexus-purple text-[10px] font-bold uppercase tracking-widest rounded-xl border border-nexus-purple/20 hover:bg-nexus-purple hover:text-white transition-all"
-                      >
-                        <Zap className="w-3 h-3" /> Send Contract
-                      </button>
-                      
-                      <button 
-                        onClick={() => {
-                          if (confirm("Finalize Project? This will expire the tracking key.")) {
-                            order.id && updateOrder(order.id, { status: 'completed', progress: 100 }).then(loadData);
-                          }
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-nexus-teal/10 text-nexus-teal text-[10px] font-bold uppercase tracking-widest rounded-xl border border-nexus-teal/20 hover:bg-nexus-teal hover:text-white transition-all"
-                      >
-                        <CheckCircle className="w-3 h-3" /> Complete Project
-                      </button>
-
-                      <div className="ml-auto flex gap-2">
-                        <button 
-                          onClick={() => order.id && handleSendTemplate(order.id, 'payment', { 
-                            projectName: order.projectName, 
-                            amount: order.value * 0.3,
-                            stage: '30% Advance Payment'
-                          })}
-                          className="flex items-center gap-2 px-4 py-2 bg-nexus-cyan/10 text-nexus-cyan text-[10px] font-bold uppercase tracking-widest rounded-xl border border-nexus-cyan/20 hover:bg-nexus-cyan hover:text-white transition-all"
-                        >
-                          <IndianRupee className="w-3 h-3" /> 30% Adv
-                        </button>
-
-                        <button 
-                          onClick={() => order.id && handleSendTemplate(order.id, 'payment', { 
-                            projectName: order.projectName, 
-                            amount: order.value * 0.4,
-                            stage: '40% Mid-Project Payment'
-                          })}
-                          className="flex items-center gap-2 px-4 py-2 bg-nexus-cyan/10 text-nexus-cyan text-[10px] font-bold uppercase tracking-widest rounded-xl border border-nexus-cyan/20 hover:bg-nexus-cyan hover:text-white transition-all"
-                        >
-                          <IndianRupee className="w-3 h-3" /> 40% Mid
-                        </button>
-
-                        <button 
-                          onClick={() => order.id && handleSendTemplate(order.id, 'payment', { 
-                            projectName: order.projectName, 
-                            amount: order.value * 0.3,
-                            stage: '30% Final Payment'
-                          })}
-                          className="flex items-center gap-2 px-4 py-2 bg-nexus-cyan/10 text-nexus-cyan text-[10px] font-bold uppercase tracking-widest rounded-xl border border-nexus-cyan/20 hover:bg-nexus-cyan hover:text-white transition-all"
-                        >
-                          <IndianRupee className="w-3 h-3" /> 30% Final
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {activeTab === 'users' && (
-            <motion.div
-              key="users"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-3xl font-display font-bold">User Directory</h3>
-                  <p className="text-white/40 text-sm">Registered entities and operative profiles.</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                {appUsers.map(user => (
-                  <div key={user._id} className="glass p-6 rounded-3xl border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-nexus-cyan/30 transition-all">
+                  <div key={order.id} className="glass p-6 rounded-3xl border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 rounded-2xl bg-nexus-cyan/10 flex items-center justify-center border border-nexus-cyan/20">
-                        <UserIcon className="w-6 h-6 text-nexus-cyan" />
+                      <div className="w-12 h-12 rounded-2xl bg-nexus-yellow/10 flex items-center justify-center border border-nexus-yellow/20">
+                        <Activity className="w-6 h-6 text-nexus-yellow" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-lg">{user.name}</h4>
-                        <p className="text-xs text-white/40">{user.email}</p>
+                        <h4 className="font-bold text-lg">{order.projectName}</h4>
+                        <p className="text-xs text-white/40">{order.clientName} // {order.email}</p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-8">
-                       <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Mobile</p>
-                          <p className="text-xs font-mono">{user.phone || 'N/A'}</p>
-                       </div>
-                       <div className="text-center">
-                          <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Status</p>
-                          <span className={cn(
-                            "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border",
-                            user.isVerified ? "bg-nexus-teal/10 text-nexus-teal border-nexus-teal/20" : "bg-red-500/10 text-red-500 border-red-500/20"
-                          )}>
-                            {user.isVerified ? 'VERIFIED' : 'PENDING'}
-                          </span>
-                       </div>
-                       <div className="flex gap-2">
-                         <button 
-                           onClick={() => handleSendTemplate(user._id, 'welcome')}
-                           className="p-3 bg-white/5 hover:bg-nexus-cyan hover:text-nexus-dark rounded-xl transition-all group"
-                           title="Send Welcome Email"
-                         >
-                           <Mail className="w-4 h-4" />
-                         </button>
-                       </div>
+                    <div className="flex flex-wrap gap-8 items-center">
+                      <div className="text-center">
+                        <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Contract_Value</p>
+                        <p className="font-mono font-bold text-nexus-cyan">₹{order.value.toLocaleString('en-IN')}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[10px] uppercase font-mono text-white/20 mb-1">Status</p>
+                        <span className="px-3 py-1 rounded-full bg-nexus-yellow/10 text-nexus-yellow text-[10px] font-bold uppercase tracking-widest border border-nexus-yellow/20">
+                          {order.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="p-2 glass rounded-lg text-white/40 hover:text-white transition-colors">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1162,97 +911,69 @@ export default function AdminPanel() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-8"
+              className="space-y-6"
             >
               <header>
-                <h3 className="text-4xl font-display font-bold">Terminal Control</h3>
+                <h3 className="text-3xl font-display font-bold">Terminal Control</h3>
                 <p className="text-white/40 text-sm">Configure system preferences and security levels.</p>
               </header>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-                {/* Visual Interface Card */}
-                <div className="glass p-10 rounded-[2rem] border-white/5 bg-white/[0.01]">
-                  <h4 className="text-nexus-cyan text-[10px] font-black uppercase tracking-[0.3em] mb-12">Visual Interface</h4>
-                  <div className="space-y-8">
-                    {[
-                      { id: 'darkMode', label: 'Dark Mode Protocols' },
-                      { id: 'hardwareAccel', label: 'Hardware Acceleration' },
-                      { id: 'neonOverpulse', label: 'Neon Overpulse' }
-                    ].map((pref) => (
-                      <div key={pref.id} className="flex justify-between items-center">
-                        <span className="text-sm font-bold text-white/80">{pref.label}</span>
-                        <button 
-                          onClick={() => setVisualPrefs(prev => ({ ...prev, [pref.id]: !prev[pref.id as keyof typeof visualPrefs] }))}
-                          className={cn(
-                            "w-12 h-6 rounded-full relative transition-all duration-300 p-1",
-                            visualPrefs[pref.id as keyof typeof visualPrefs] ? "bg-nexus-cyan shadow-[0_0_15px_rgba(0,229,255,0.3)]" : "bg-white/10"
-                          )}
-                        >
-                          <motion.div 
-                            animate={{ x: visualPrefs[pref.id as keyof typeof visualPrefs] ? 24 : 0 }}
-                            className={cn(
-                              "w-4 h-4 rounded-full transition-colors",
-                              visualPrefs[pref.id as keyof typeof visualPrefs] ? "bg-nexus-dark" : "bg-white/40"
-                            )} 
-                          />
-                        </button>
-                      </div>
-                    ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="glass p-6 md:p-8 rounded-3xl border-white/10">
+                  <h4 className="text-nexus-cyan text-[10px] font-bold uppercase tracking-[0.2em] mb-6">Visual Interface</h4>
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Dark Mode Protocols</span>
+                      <div className="w-10 h-5 bg-nexus-cyan rounded-full relative"><div className="absolute top-1 right-1 w-3 h-3 bg-nexus-dark rounded-full" /></div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Hardware Acceleration</span>
+                      <div className="w-10 h-5 bg-nexus-cyan rounded-full relative"><div className="absolute top-1 right-1 w-3 h-3 bg-nexus-dark rounded-full" /></div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Neon Overpulse</span>
+                      <div className="w-10 h-5 bg-white/10 rounded-full relative"><div className="absolute top-1 left-1 w-3 h-3 bg-white/40 rounded-full" /></div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Create New Operator Card */}
-                <div className="glass p-10 rounded-[2rem] border-nexus-cyan/20 bg-nexus-cyan/[0.02]">
-                  <h4 className="text-nexus-cyan text-[11px] font-black uppercase tracking-[0.3em] mb-12 flex items-center gap-3">
-                    <UserIcon className="w-4 h-4" /> Create New Operator
+                <div className="glass p-8 rounded-3xl border-nexus-cyan/20 bg-nexus-cyan/5">
+                  <h4 className="text-nexus-cyan text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <UserIcon className="w-3 h-3" /> Create New Operator
                   </h4>
-                  <form onSubmit={handlePromoteOperator} className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] text-white/30 uppercase font-black tracking-widest">Operator Email</label>
-                      <input 
-                        type="email" 
-                        required 
-                        value={operatorData.email}
-                        onChange={e => setOperatorData({ ...operatorData, email: e.target.value })}
-                        className="w-full bg-nexus-cyan/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-nexus-cyan outline-none transition-all placeholder:text-white/10" 
-                        placeholder="mrbadshaff@gmail.com" 
-                      />
+                  <form 
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      alert("Please note: To strictly prevent unauthorized access, you must add users manually in the Firebase Console > Authentication tab. This ensures perfect security records.");
+                      window.open("https://console.firebase.google.com/", "_blank");
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-1">
+                      <label className="text-[9px] text-white/40 uppercase font-bold">Operator Email</label>
+                      <input name="email" type="email" required className="w-full bg-nexus-dark/50 border border-white/10 rounded-xl px-4 py-2 text-xs focus:border-nexus-cyan outline-none" placeholder="new-operator@nexus.io" />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] text-white/30 uppercase font-black tracking-widest">Temporary Access Key</label>
-                      <input 
-                        type="password" 
-                        required 
-                        value={operatorData.accessKey}
-                        onChange={e => setOperatorData({ ...operatorData, accessKey: e.target.value })}
-                        className="w-full bg-nexus-cyan/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-nexus-cyan outline-none transition-all" 
-                        placeholder="••••••••••••••••" 
-                      />
+                    <div className="space-y-1">
+                      <label className="text-[9px] text-white/40 uppercase font-bold">Temporary Access Key</label>
+                      <input name="password" type="password" required className="w-full bg-nexus-dark/50 border border-white/10 rounded-xl px-4 py-2 text-xs focus:border-nexus-cyan outline-none" placeholder="••••••••" />
                     </div>
-                    <button 
-                      type="submit" 
-                      disabled={isLoading}
-                      className="w-full py-5 bg-nexus-cyan text-nexus-dark text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-white hover:shadow-[0_0_30px_rgba(0,229,255,0.4)] transition-all active:scale-[0.98]"
-                    >
-                      {isLoading ? 'Authorizing...' : 'Authorize Deployment'}
+                    <button type="submit" className="w-full py-3 bg-nexus-cyan text-nexus-dark text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-white transition-colors">
+                      Authorize Deployment
                     </button>
                   </form>
                 </div>
 
-                {/* Security Access Registry Card */}
-                <div className="md:col-span-2 xl:col-span-1 glass p-10 rounded-[2rem] border-white/5 bg-white/[0.01]">
-                  <h4 className="text-nexus-yellow text-[10px] font-black uppercase tracking-[0.3em] mb-12">Security Layer Access Registry</h4>
-                  <div className="space-y-6">
-                    <p className="text-xs text-white/40 leading-relaxed font-medium">
-                      Primary Root Account: <span className="text-nexus-cyan font-mono bg-nexus-cyan/5 px-2 py-1 rounded">mrbadshaff@gmail.com</span>
-                    </p>
-                    <div className="p-6 bg-nexus-dark/40 rounded-2xl border border-white/5 text-[10px] font-mono space-y-4 shadow-inner">
+                <div className="md:col-span-2 xl:col-span-1 glass p-8 rounded-3xl border-white/10">
+                  <h4 className="text-nexus-yellow text-[10px] font-bold uppercase tracking-[0.2em] mb-6">Security Layer Access Registry</h4>
+                  <div className="space-y-4">
+                    <p className="text-xs text-white/50 leading-relaxed">Primary Root Account: <span className="text-nexus-cyan font-mono">{ADMIN_EMAIL}</span></p>
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/5 text-[10px] font-mono space-y-2">
                       <div className="flex justify-between items-center">
-                        <p className="text-white/40 uppercase tracking-tighter">Identity_Verification: <span className="text-nexus-teal font-black ml-2">Bypass_Enabled</span></p>
-                        <span className="px-2 py-0.5 bg-nexus-teal/20 text-nexus-teal rounded-sm text-[8px] font-black">ROOT</span>
+                        <p>IDENTITY_VERIFICATION: <span className="text-nexus-teal uppercase">Bypass_Enabled</span></p>
+                        <span className="px-2 py-0.5 bg-nexus-teal/20 text-nexus-teal rounded text-[8px]">ROOT</span>
                       </div>
-                      <p className="text-white/40 uppercase tracking-tighter">Token_Status: <span className="text-nexus-teal font-black ml-2">Valid_Session_Active</span></p>
-                      <p className="text-white/40 uppercase tracking-tighter">Clearance_Lvl: <span className="text-nexus-teal font-black ml-2">Tier_5_Executive</span></p>
+                      <p>TOKEN_STATUS: <span className="text-nexus-teal uppercase">Valid_Session_Active</span></p>
+                      <p>CLEARANCE_LVL: <span className="text-nexus-teal uppercase">Tier_5_Executive</span></p>
                     </div>
                   </div>
                 </div>
@@ -1307,6 +1028,7 @@ export default function AdminPanel() {
                       className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 focus:border-nexus-cyan transition-colors appearance-none text-white"
                     >
                       <option>Web Engineering</option>
+                      <option>Android App</option>
                       <option>Video Editing</option>
                       <option>Branding/Logo</option>
                       <option>SEO Strategy</option>
@@ -1427,18 +1149,10 @@ export default function AdminPanel() {
                 <button 
                   disabled={isLoading || isUploading}
                   type="submit" 
-                  className="w-full btn-primary py-4 flex items-center justify-center gap-3 disabled:opacity-50 group min-h-[60px]"
+                  className="w-full btn-primary py-4 flex items-center justify-center gap-3 disabled:opacity-50 group"
                 >
-                  {isLoading ? (
-                    <div className="scale-50 origin-center flex items-center h-full">
-                      <Loader />
-                    </div>
-                  ) : (
-                    <>
-                      Commit Modifications
-                      <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    </>
-                  )}
+                  {isLoading ? 'Processing Pulse...' : 'Commit Modifications'}
+                  <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 </button>
               </form>
             </motion.div>

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Quote, Send, User, MessageSquare, LogIn } from 'lucide-react';
+import { Star, Quote, Send, User, MessageSquare, Loader2, LogIn } from 'lucide-react';
 import { getReviews, createReview, Review, getMe, User as UserType } from '../lib/db';
 import toast from 'react-hot-toast';
-import Loader from './Loader';
 
 export default function ReviewSystem() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -127,7 +126,7 @@ export default function ReviewSystem() {
                   <label className="text-[10px] font-bold text-white/40 uppercase ml-2 tracking-widest">Protocol (Service Deployed)</label>
                   <input 
                     required
-                    placeholder="e.g. Video Production / MERN Architecture"
+                    placeholder="e.g. Android Core / MERN Architecture"
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:border-nexus-cyan outline-none transition-all text-white"
                     value={formData.service}
                     onChange={e => setFormData({...formData, service: e.target.value})}
@@ -158,11 +157,9 @@ export default function ReviewSystem() {
                   />
                 </div>
 
-                <button disabled={isSubmitting} type="submit" className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 group relative overflow-hidden">
+                <button disabled={isSubmitting} type="submit" className="w-full btn-primary py-4 rounded-2xl flex items-center justify-center gap-3 group">
                   {isSubmitting ? (
-                    <div className="scale-50 origin-center py-2 h-8 flex items-center">
-                      <Loader />
-                    </div>
+                    <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
                       <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -201,7 +198,7 @@ export default function ReviewSystem() {
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-nexus-cyan/10 flex items-center justify-center border border-nexus-cyan/20 overflow-hidden">
                    {review.avatar ? (
-                     <img src={review.avatar} className="w-full h-full object-cover" />
+                     <img src={review.avatar} alt={review.clientName} className="w-full h-full object-cover" />
                    ) : (
                      <span className="text-nexus-cyan font-bold text-lg">{review.clientName.charAt(0)}</span>
                    )}

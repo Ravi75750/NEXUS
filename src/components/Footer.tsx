@@ -94,7 +94,7 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-6 text-nexus-cyan uppercase tracking-widest text-sm">Technologies</h4>
             <ul className="space-y-4">
-              {['Full-Stack Web', 'SEO Systems', 'Creative Media', 'Brand Identity'].map((tech) => (
+              {['Full-Stack Web', 'Android Engineering', 'SEO Systems', 'Creative Media', 'Brand Identity'].map((tech) => (
                 <li key={tech}>
                   <span className="text-white/40 text-sm">{tech}</span>
                 </li>
@@ -104,33 +104,42 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-bold mb-8 text-nexus-cyan uppercase tracking-[0.2em] text-sm">DIRECT_CONNECT</h4>
+            <h4 className="font-bold mb-6 text-nexus-cyan uppercase tracking-widest text-sm">Direct_Connect</h4>
             <ul className="space-y-6">
-              <li className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-nexus-yellow" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg glass flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5 text-nexus-yellow" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono text-white/30 mb-0.5 tracking-widest uppercase">ESTABLISH_CALL</p>
-                  <a href="tel:+917575088632" className="text-base font-bold text-white hover:text-nexus-cyan transition-colors">7575088632</a>
+                  <p className="text-[10px] font-mono text-white/30 mb-1">CALL/WHATSAPP</p>
+                  <a href="tel:+917575088632" className="text-sm font-bold hover:text-nexus-cyan transition-colors">7575088632</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-6 h-6 text-nexus-yellow" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg glass flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-5 h-5 text-nexus-yellow" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono text-white/30 mb-0.5 tracking-widest uppercase">TRANSMIT_EMAIL</p>
-                  <a href="mailto:mrbadshaff@gmail.com" className="text-base font-bold text-white hover:text-nexus-cyan transition-colors">mrbadshaff@gmail.com</a>
+                  <p className="text-[10px] font-mono text-white/30 mb-1">TRANSMIT_EMAIL</p>
+                  <a href="mailto:mrbadshaff@gmail.com" className="text-sm font-bold hover:text-nexus-cyan transition-colors">mrbadshaff@gmail.com</a>
                 </div>
               </li>
-              <li className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-6 h-6 text-nexus-yellow" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg glass flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-5 h-5 text-[#25D366]" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-mono text-white/30 mb-0.5 tracking-widest uppercase">WHATSAPP_START</p>
-                  <a href="https://wa.me/917575088632" target="_blank" rel="noopener noreferrer" className="text-base font-bold text-white hover:text-nexus-cyan transition-colors">7575088632</a>
+                  <p className="text-[10px] font-mono text-white/30 mb-1">WHATSAPP_CONNECT</p>
+                  <a href="https://wa.me/917575088632" target="_blank" rel="noopener noreferrer" className="text-sm font-bold hover:text-[#25D366] transition-colors">Connect on WhatsApp</a>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg glass flex items-center justify-center flex-shrink-0">
+                  <Instagram className="w-5 h-5 text-[#E4405F]" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono text-white/30 mb-1">INSTAGRAM_FEED</p>
+                  <a href="https://www.instagram.com/nexus_websolutions_?igsh=ZXRhNHFobjZhNzJy" target="_blank" rel="noopener noreferrer" className="text-sm font-bold hover:text-[#E4405F] transition-colors">Follow on Instagram</a>
                 </div>
               </li>
             </ul>

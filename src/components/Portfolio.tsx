@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, ArrowRight, Zap, Globe, Smartphone, Play } from 'lucide-react';
+import { ExternalLink, ArrowRight, Zap, Globe, Smartphone, Play, Loader2 } from 'lucide-react';
 import { getProjects, Project } from '../lib/db';
-import Loader from './Loader';
 
 export default function Portfolio() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -26,7 +25,7 @@ export default function Portfolio() {
   if (isLoading) {
     return (
       <div className="h-[600px] flex items-center justify-center bg-nexus-charcoal/30">
-        <Loader fullPage />
+        <Loader2 className="w-10 h-10 text-nexus-cyan animate-spin" />
       </div>
     );
   }
@@ -71,110 +70,72 @@ export default function Portfolio() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Project List */}
-          <div className="lg:col-span-5 flex flex-col gap-4 justify-center">
-            {projects.map((project, i) => {
-              const isActive = activeProject === i;
-              return (
-                <motion.div
-                  key={project.title}
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08, duration: 0.5, ease: 'easeOut' }}
-                  onClick={() => setActiveProject(i)}
-                  className={`p-6 cursor-pointer rounded-2xl transition-all duration-300 border relative overflow-hidden group ${
-                    isActive 
-                      ? 'bg-nexus-cyan/[0.03] border-nexus-cyan/50 shadow-[0_0_20px_rgba(0,170,255,0.08)]' 
-                      : 'border-white/5 bg-transparent hover:bg-white/[0.02] hover:border-white/10'
-                  }`}
-                >
-                  {/* Active Slide Track Line */}
-                  <div className={`absolute top-0 left-0 bottom-0 w-[4px] transition-all duration-300 ${isActive ? 'bg-nexus-cyan' : 'bg-transparent'}`} />
-
-                  {/* High Tech ID Tag */}
-                  <div className="flex justify-between items-center mb-2">
-                    <span className={`text-[9px] font-mono tracking-widest ${isActive ? 'text-nexus-cyan font-bold' : 'text-white/20'}`}>
-                      {isActive ? `// ACTIVE_NODE` : `// NODE_0${i + 1}`}
-                    </span>
-                    <span className={`text-[10px] font-sans font-medium px-2 py-0.5 rounded-full border ${
-                      isActive 
-                        ? 'border-nexus-cyan/20 text-nexus-cyan bg-nexus-cyan/10' 
-                        : 'border-white/5 text-white/30 bg-white/5'
-                    }`}>
-                      {project.category}
-                    </span>
-                  </div>
-
-                  <h3 className={`text-lg font-bold tracking-tight transition-colors duration-300 ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white/90'}`}>
-                    {project.title}
-                  </h3>
-                </motion.div>
-              );
-            })}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            {projects.map((project, i) => (
+              <motion.div
+                key={project.title}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                onClick={() => setActiveProject(i)}
+                className={`p-6 cursor-pointer rounded-xl transition-all duration-500 border ${
+                  activeProject === i 
+                    ? 'glass border-nexus-cyan/50 bg-nexus-cyan/5' 
+                    : 'border-transparent hover:bg-white/5'
+                }`}
+              >
+                <span className={`text-[10px] font-mono mb-2 block ${activeProject === i ? 'text-nexus-cyan' : 'text-white/30'}`}>
+                  {project.category.toUpperCase()}
+                </span>
+                <h3 className={`text-xl font-bold ${activeProject === i ? 'text-white' : 'text-white/60'}`}>
+                  {project.title}
+                </h3>
+              </motion.div>
+            ))}
           </div>
 
-          {/* Project Preview with HUD styling */}
-          <div className="lg:col-span-7 min-h-[500px] relative rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] group bg-nexus-dark">
-            
-            {/* Precise Cybernetic Layout Brackets */}
-            <div className="absolute top-6 left-6 w-3 h-3 border-t-2 border-l-2 border-nexus-cyan/40 pointer-events-none z-20" />
-            <div className="absolute top-6 right-6 w-3 h-3 border-t-2 border-r-2 border-nexus-cyan/40 pointer-events-none z-20" />
-            <div className="absolute bottom-6 left-6 w-3 h-3 border-b-2 border-l-2 border-nexus-cyan/40 pointer-events-none z-20" />
-            <div className="absolute bottom-6 right-6 w-3 h-3 border-b-2 border-r-2 border-nexus-cyan/40 pointer-events-none z-20" />
-            
+          {/* Project Preview */}
+          <div className="lg:col-span-7 h-[500px] relative rounded-3xl overflow-hidden glass group">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeProject}
-                initial={{ opacity: 0, filter: 'blur(8px)', scale: 1.05 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-                exit={{ opacity: 0, filter: 'blur(8px)', scale: 1.05 }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
-                className="absolute inset-0 flex flex-col justify-end"
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                transition={{ duration: 0.6 }}
+                className="absolute inset-0"
               >
                 <img 
                   src={projects[activeProject].image} 
                   alt={projects[activeProject].title}
-                  className="absolute inset-0 w-full h-full object-cover brightness-[0.4] group-hover:scale-105 transition-transform duration-[1200ms]"
+                  className="w-full h-full object-cover brightness-50 group-hover:scale-105 transition-transform duration-1000"
                   referrerPolicy="no-referrer"
                 />
                 
-                {/* Visual Overlay Shading */}
-                <div className="absolute inset-0 bg-gradient-to-t from-nexus-dark via-nexus-dark/40 to-transparent z-10" />
-
-                {/* Cybernetic Tech Details Grid Overlay */}
-                <div className="absolute top-8 left-12 right-12 flex justify-between items-center text-white/20 font-mono text-[9px] pointer-events-none z-10">
-                  <span>SECURE_ARCHIVE_FILE_R24</span>
-                  <span>STATUS: INTEGRATED</span>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-nexus-dark via-transparent to-transparent" />
                 
-                <div className="relative bottom-0 left-0 p-8 md:p-12 z-20 w-full">
+                <div className="absolute bottom-10 left-10 p-4">
                   <motion.div
-                    initial={{ opacity: 0, y: 15 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                    transition={{ delay: 0.3 }}
                   >
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex gap-2 mb-4">
                       {projects[activeProject].tags.map(tag => (
-                        <span key={tag} className="text-[9px] uppercase font-mono tracking-widest px-2.5 py-1 rounded bg-nexus-cyan/10 border border-nexus-cyan/20 text-nexus-cyan backdrop-blur-md">
+                        <span key={tag} className="text-[10px] uppercase font-bold tracking-widest px-2 py-1 glass rounded text-white/80">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    
-                    <h4 className="text-2xl md:text-3.5xl font-bold mb-3 text-white tracking-tight leading-none">
-                      {projects[activeProject].title}
-                    </h4>
-                    
-                    <p className="text-white/65 max-w-xl mb-6 text-sm leading-relaxed">
-                      {projects[activeProject].description}
-                    </p>
-                    
+                    <h4 className="text-3xl font-bold mb-4">{projects[activeProject].title}</h4>
+                    <p className="text-white/70 max-w-md mb-6">{projects[activeProject].description}</p>
                     <a 
                       href={projects[activeProject].projectUrl || "#"} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-6 py-3 rounded-xl bg-nexus-cyan text-nexus-dark text-[11px] font-extrabold uppercase tracking-widest inline-flex items-center gap-2 hover:bg-nexus-dark hover:text-nexus-cyan border border-nexus-cyan hover:border-nexus-cyan/50 hover:shadow-[0_0_25px_rgba(0,170,255,0.4)] transition-all duration-300"
+                      className="btn-primary py-2 px-6 inline-flex items-center gap-2"
                     >
                        Full Case Study
                        <ExternalLink className="w-4 h-4" />

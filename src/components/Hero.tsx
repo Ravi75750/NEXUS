@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, Atom, Sparkles, ArrowRight } from 'lucide-react';
-import WatchButton from './WatchButton';
 
 export default function Hero() {
   return (
@@ -28,26 +27,28 @@ export default function Hero() {
           <span className="text-nexus-yellow">Grow</span>  Your Business.
         </motion.h1>
 
-        
+
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="flex flex-col md:flex-row items-center justify-center gap-12"
+          className="flex flex-col md:flex-row items-center justify-center gap-6"
         >
-          <button 
-            className="btn-primary flex items-center gap-2 group"
+          <button
+            className="btn-[#FA340F] flex items-center gap-2 group"
             onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
           >
             Start Your Transformation
             <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          
-          <WatchButton 
-            label="CONTACT US"
+          <button
+            className="btn-secondary flex items-center gap-2 group border-white/10"
             onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-          />
+          >
+            Contact Nexus HQ
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </motion.div>
 
 

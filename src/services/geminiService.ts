@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = process.env.apikey || process.env.apiKey || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+const ai = new GoogleGenAI({ apiKey });
 
 export async function getAIStrategyResponse(message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
   try {
@@ -12,7 +13,7 @@ export async function getAIStrategyResponse(message: string, history: { role: 'u
       ],
       config: {
         systemInstruction: `You are the Nexus Digital Solutions AI Strategy Bot. Your goal is to provide instant client consultation for a high-end digital agency. 
-        Agency Services: Full-Stack Web Development (MERN), SEO, Video Editing, and Logo Design.
+        Agency Services: Full-Stack Web Development (MERN), Android App Building, SEO, Video Editing, and Logo Design.
         Tone: Professional, futuristic, creative, and highly knowledgeable.
         Guidelines:
         1. Keep responses concise and impactful.

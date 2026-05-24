@@ -13,10 +13,10 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { generate } from "otp-generator";
 
+dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
 // Load .env.example if .env doesn't exist (helpful for this specific environment setup)
 import fs from 'fs';
 if (!fs.existsSync(path.resolve(__dirname, '.env')) && fs.existsSync(path.resolve(__dirname, '.env.example'))) {
@@ -95,9 +95,7 @@ async function startServer() {
     name: String,
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    phone: String,
     isVerified: { type: Boolean, default: false },
-    role: { type: String, default: "user" },
     avatar: String,
   }, { timestamps: true });
   const User = mongoose.model("User", userSchema);
@@ -128,49 +126,11 @@ async function startServer() {
     phone: String,
     projectName: String,
     value: Number,
-    paidAmount: { type: Number, default: 0 },
-    status: { type: String, default: "pending" },
-    stage: { type: String, default: "Initiated" }, // advance, mid, final
-    progress: { type: Number, default: 0 },
-    trackingKey: { type: String, unique: true, sparse: true },
+    status: { type: String, default: "active" },
     startDate: { type: Date, default: Date.now },
     deadline: Date,
   }, { timestamps: true });
   const Order = mongoose.model("Order", orderSchema);
-
-  // --- PUBLIC TRACKING ENDPOINT ---
-  app.get("/api/track/:key", async (req, res, next) => {
-    try {
-      const order = await Order.findOne({ trackingKey: req.params.key });
-      if (!order) return res.status(404).json({ error: "Invalid Tracking Protocol" });
-      
-      if (order.status === "completed") {
-        return res.status(410).json({ error: "Project Deployment Finalized. Access Key Expired." });
-      }
-
-      res.json({
-        projectName: order.projectName,
-        clientName: order.clientName,
-        progress: order.progress,
-        status: order.status,
-        stage: order.stage,
-        startDate: order.startDate,
-        deadline: order.deadline
-      });
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  // --- MAIL CONFIG ---
-  console.log("Initializing Mail System...");
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: (process.env.EMAIL_USER || "").trim(),
-      pass: (process.env.EMAIL_PASS || "").trim(),
-    },
-  });
 
   // --- STATUS ENDPOINT ---
   app.get("/api/db-status", (req, res) => {
@@ -182,170 +142,29 @@ async function startServer() {
     });
   });
 
-  // --- EMAIL TEMPLATES ---
-  const getEmailStyles = () => `
-    <style>
-      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7f9; }
-      .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e1e8ed; }
-      .header { background: #00e5ff; padding: 40px 20px; text-align: center; color: #0a0a0b; }
-      .header h1 { margin: 0; font-size: 28px; letter-spacing: 1px; text-transform: uppercase; }
-      .content { padding: 40px; }
-      .content h2 { color: #00aaff; margin-bottom: 20px; }
-      .footer { background: #0a0a0b; color: #fff; padding: 20px; text-align: center; font-size: 12px; }
-      .footer p { margin: 5px 0; color: #888; }
-      .btn { display: inline-block; padding: 12px 30px; background: #00e5ff; color: #0a0a0b; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-      .qr-code { text-align: center; margin: 30px 0; }
-      .qr-code img { border: 1px solid #eee; padding: 10px; border-radius: 8px; }
-      .details { background: #f9fbfc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #edf2f7; }
-      .details-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-      .details-label { font-weight: bold; color: #718096; }
-      .details-value { color: #2d3748; }
-    </style>
-  `;
+  // --- MAIL CONFIG ---
+  console.log("Initializing Mail System...");
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error("CRITICAL: EMAIL_USER or EMAIL_PASS environment variables are MISSING.");
+  }
 
-  const getWelcomeTemplate = (name: string) => `
-    ${getEmailStyles()}
-    <div class="container">
-      <div class="header"><h1>Nexus Digital</h1></div>
-      <div class="content">
-        <h2>Welcome to the Future, ${name}!</h2>
-        <p>We are thrilled to have you join Nexus Digital Solutions. Your registration was successful, and your strategic node is now active.</p>
-        <p>Explore our high-end engineering services and consult with NOVA, our AI strategist, to kickstart your project.</p>
-        <a href="${process.env.APP_URL || '#'}" class="btn">Launch Dashboard</a>
-      </div>
-      <div class="footer">
-        <p>&copy; 2026 Nexus Digital Solutions. All bits reserved.</p>
-      </div>
-    </div>
-  `;
-
-  const getContractTemplate = (name: string, projectName: string) => `
-    ${getEmailStyles()}
-    <div class="container">
-      <div class="header"><h1>Project Protocol</h1></div>
-      <div class="content">
-        <h2>Service Agreement: ${projectName}</h2>
-        <p>Hello ${name},</p>
-        <p>We've prepared the digital contract for your upcoming project with Nexus. Please review the terms and technical specifications attached.</p>
-        <div class="details">
-          <div class="details-row"><span class="details-label">Project:</span> <span class="details-value">${projectName}</span></div>
-          <div class="details-row"><span class="details-label">Client:</span> <span class="details-value">${name}</span></div>
-          <div class="details-row"><span class="details-label">Status:</span> <span class="details-value">Draft Review</span></div>
-        </div>
-        <p>Once you approve, we will initiate the first engineering sprint.</p>
-        <a href="${process.env.APP_URL || '#'}/contracts" class="btn">Review Contract</a>
-      </div>
-      <div class="footer">
-        <p>Nexus Digital Solutions | Secure Node</p>
-      </div>
-    </div>
-  `;
-
-  const getPaymentTemplate = (name: string, projectName: string, stage: string, amount: string, qrData: string) => `
-    ${getEmailStyles()}
-    <div class="container">
-      <div class="header"><h1>Payment Node</h1></div>
-      <div class="content">
-        <h2>Invoice for ${stage}</h2>
-        <p>Hello ${name}, your project <b>${projectName}</b> has reached the ${stage} milestone.</p>
-        <div class="details">
-          <div class="details-row"><span class="details-label">Stage:</span> <span class="details-value">${stage}</span></div>
-          <div class="details-row"><span class="details-label">Amount Due:</span> <span class="details-value">${amount}</span></div>
-        </div>
-        <p>Please scan the secure QR code below to process the payment:</p>
-        <div class="qr-code">
-          <img src="${qrData}" alt="Payment QR Code" width="200" height="200" />
-        </div>
-        <p style="text-align: center; color: #718096; font-size: 13px;">Secure Transaction Node | UPI/IMPS Verified</p>
-      </div>
-      <div class="footer">
-        <p>Thank you for choosing Nexus Engineering.</p>
-      </div>
-    </div>
-  `;
-
-  // --- ADMIN AUTH CHECK ---
-  const isAdmin = (req: express.Request) => {
-    // For simplicity in this demo, we check a specific email if provided via auth
-    return true; // We will handle actual session/JWT check in the middleware/routes
-  };
-
-  // --- ADMIN EMAIL ACTIONS ---
-  app.post("/api/admin/send-template", async (req, res, next) => {
-    try {
-      const { type, email, name, projectName, amount, stage } = req.body;
-      let subject = "Nexus Update";
-      let html = "";
-
-      if (type === "welcome") {
-        subject = "Welcome to Nexus Digital Solutions";
-        html = getWelcomeTemplate(name);
-      } else if (type === "contract") {
-        subject = `Project Contract: ${projectName}`;
-        html = getContractTemplate(name, projectName);
-      } else if (type === "payment") {
-        subject = `Invoice: ${projectName} (${stage})`;
-        // Create generic payment data for QR (e.g., UPI link)
-        const upiLink = `upi://pay?pa=mrbadshaff@okaxis&pn=NexusDigital&am=${amount || 0}&cu=INR`;
-        const QRCode = await import('qrcode');
-        const qrData = await QRCode.toDataURL(upiLink);
-        html = getPaymentTemplate(name, projectName, stage, `₹${amount}`, qrData);
-      }
-
-      await transporter.sendMail({
-        from: `"Nexus Digital" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject,
-        html,
-      });
-
-      res.json({ success: true, message: `Template ${type} sent to ${email}` });
-    } catch (err) {
-      next(err);
-    }
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: (process.env.EMAIL_USER || "").trim(),
+      pass: (process.env.EMAIL_PASS || "").trim(),
+    },
   });
 
   // --- AUTH ROUTES ---
-  app.get("/api/admin/users", async (req, res, next) => {
-    try {
-      const users = await User.find().select("-password").sort({ createdAt: -1 });
-      res.json(users);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  app.post("/api/admin/promote-operator", async (req, res, next) => {
-    try {
-      const { email, accessKey } = req.body;
-      
-      // Simple verification for the demo - typically this would check the caller's admin rights
-      if (accessKey !== "admin123") {
-        return res.status(403).json({ error: "Invalid Authorization Token" });
-      }
-
-      const user = await User.findOneAndUpdate(
-        { email },
-        { role: "admin" },
-        { new: true }
-      );
-
-      if (!user) return res.status(404).json({ error: "Node not found in registry" });
-
-      res.json({ success: true, message: `User ${email} promoted to Operator` });
-    } catch (err) {
-      next(err);
-    }
-  });
-
   app.post("/api/auth/register", async (req, res, next) => {
     try {
-      const { email, password, name, phone } = req.body;
+      const { email, password, name } = req.body;
       const existingUser = await User.findOne({ email });
       if (existingUser) return res.status(400).json({ error: "Email already registered" });
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = new User({ email, password: hashedPassword, name, phone });
+      const user = new User({ email, password: hashedPassword, name });
       await user.save();
 
       const otp = generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false });
@@ -431,12 +250,7 @@ async function startServer() {
   });
   app.post("/api/orders", async (req, res, next) => {
     try {
-      const data = {
-        ...req.body,
-        paidAmount: req.body.paidAmount || 0,
-        stage: req.body.stage || 'Initiated'
-      };
-      const order = new Order(data);
+      const order = new Order(req.body);
       await order.save();
       res.json(order);
     } catch (err) {
