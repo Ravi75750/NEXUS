@@ -1,12 +1,41 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.apikey || process.env.apiKey || process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
-const ai = new GoogleGenAI({ apiKey });
+let ai: GoogleGenAI | null = null;
+
+function getAIInstance() {
+  if (ai) return ai;
+
+  // Retrieve the API key from environment variables (checking both Vite's meta env and process env fallback)
+  const apiKey =
+    (import.meta as any).env.VITE_GEMINI_API_KEY ||
+    (typeof process !== "undefined" && process.env
+      ? (process.env.GEMINI_API_KEY || process.env.apiKey || process.env.apikey)
+      : "") ||
+    "";
+
+  if (!apiKey || apiKey.trim() === "") {
+    console.warn("Gemini API key is not set. Google Gen AI features will be disabled.");
+    return null;
+  }
+
+  try {
+    ai = new GoogleGenAI({ apiKey });
+    return ai;
+  } catch (err) {
+    console.error("Failed to initialize Google Gen AI:", err);
+    return null;
+  }
+}
 
 export async function getAIStrategyResponse(message: string, history: { role: 'user' | 'model', parts: { text: string }[] }[]) {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+    const aiInstance = getAIInstance();
+    if (!aiInstance) {
+      return "I'm currently undergoing scheduled maintenance. Please contact the team directly at mrbadshaff@gmail.com or 7575088632!";
+    }
+
+    const response = await aiInstance.models.generateContent({
+      model: "gemini-2.5-flash", // Use standard flash model (gemini-2.5-flash) for maximum stability
       contents: [
         ...history,
         { role: 'user', parts: [{ text: message }] }
@@ -33,3 +62,4 @@ export async function getAIStrategyResponse(message: string, history: { role: 'u
     return "I'm experiencing a minor sync issue with the Nexus core. Please try again or contact us directly at mrbadshaff@gmail.com.";
   }
 }
+
